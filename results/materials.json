@@ -1,0 +1,1304 @@
+{
+    "materials": [
+        {
+            "name": "alum-bronze",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.18382589675439198,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.43954162634729393
+            }
+        },
+        {
+            "name": "alumina-oxide",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.3882527177341651
+            }
+        },
+        {
+            "name": "aluminium",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.5149093930097131
+            }
+        },
+        {
+            "name": "aventurnine",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.048271599799709804,
+                    0.025593548273520922,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.7028851631916927
+            }
+        },
+        {
+            "name": "beige-fabric",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.56088602848776,
+                    0.4276734031235126,
+                    0.37738222082715656,
+                    1
+                ],
+                "metallicFactor": 0.9616367746829837,
+                "roughnessFactor": 0.9145408450545774
+            }
+        },
+        {
+            "name": "black-fabric",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 1.0
+            }
+        },
+        {
+            "name": "black-obsidian",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5654610276451104
+            }
+        },
+        {
+            "name": "black-oxidized-steel",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0516946111517418,
+                    0.0288522336368752,
+                    0.014582980564955482,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6343045610268605
+            }
+        },
+        {
+            "name": "black-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.01919334468447927,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6922155109967816
+            }
+        },
+        {
+            "name": "black-soft-plastic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.007548149442220862,
+                    0.006474415332291473,
+                    0.008403476908906155,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.8768381543572972
+            }
+        },
+        {
+            "name": "blue-acrylic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.09458721301435312,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6477667932662059
+            }
+        },
+        {
+            "name": "blue-fabric",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.056209116961318924,
+                    0.06425526352307606,
+                    0.18023527491850935,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.9114319796891102
+            }
+        },
+        {
+            "name": "blue-metallic-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.12690778993300855,
+                    0.11058380286807565,
+                    0.24208684386319063,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.777610961457702
+            }
+        },
+        {
+            "name": "blue-metallic-paint2",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.03184983694273509,
+                    0.25935342750568646,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.48944073429427865
+            }
+        },
+        {
+            "name": "blue-rubber",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.006991228087672541,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5696883275607351
+            }
+        },
+        {
+            "name": "brass",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.22057508586123006,
+                    0.06872070827303932,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5244575942224352
+            }
+        },
+        {
+            "name": "cherry-235",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.040396955357372887,
+                    0.02451030474321655,
+                    0.05015645876047966,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.600965261524052
+            }
+        },
+        {
+            "name": "chrome-steel",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.04251046167817625,
+                    0.07024839324921613,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.45527558886121927
+            }
+        },
+        {
+            "name": "chrome",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.06409494213482171,
+                    0.3038195634628271,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.4119648300814072
+            }
+        },
+        {
+            "name": "colonial-maple-223",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.07770414158470304,
+                    0.04246994394439973,
+                    0.027303371264914705,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5864329474953791
+            }
+        },
+        {
+            "name": "color-changing-paint1",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.02777022040055639,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.4989964985238299
+            }
+        },
+        {
+            "name": "color-changing-paint2",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.004237854226661841,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.4886432083571315
+            }
+        },
+        {
+            "name": "color-changing-paint3",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.501356665166434
+            }
+        },
+        {
+            "name": "dark-blue-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.02580135997708029,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.7675051899946735
+            }
+        },
+        {
+            "name": "dark-red-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.19510810913389742,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.2584357965332223,
+                "roughnessFactor": 0.647769146051319
+            }
+        },
+        {
+            "name": "dark-specular-fabric",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.6991183858581067
+            }
+        },
+        {
+            "name": "delrin",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.22767180749231727,
+                    0.19892698126516697,
+                    0.14477837017320572,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.4791435141954865
+            }
+        },
+        {
+            "name": "fruitwood-241",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.04613615276889188,
+                    0.003485118973111077,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5048756721031469
+            }
+        },
+        {
+            "name": "gold-metallic-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.5288192223844932,
+                    0.3085976224032615,
+                    0.11517330286213437,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.7670136269957208
+            }
+        },
+        {
+            "name": "gold-metallic-paint2",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.1229104891855975,
+                    0.012035627249008042,
+                    0.015276850005757925,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5731626810584232
+            }
+        },
+        {
+            "name": "gold-metallic-paint3",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.2856790182411553,
+                    0.116204795395927,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5063729576930039
+            }
+        },
+        {
+            "name": "gold-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.18099479234398708,
+                    0.0783764101812488,
+                    0.008548825974425384,
+                    1
+                ],
+                "metallicFactor": 0.2929094533969036,
+                "roughnessFactor": 0.5872420936692186
+            }
+        },
+        {
+            "name": "gray-plastic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.036142417371919325,
+                    0.025756479001019086,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.9115928494258393,
+                "roughnessFactor": 0.617036441231351
+            }
+        },
+        {
+            "name": "grease-covered-steel",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.4682239595423735
+            }
+        },
+        {
+            "name": "green-acrylic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.15391530523947058,
+                    0.12415964599657105,
+                    0.05535951215631543,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6011018881517806
+            }
+        },
+        {
+            "name": "green-fabric",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.05785517465980842,
+                    0.12743498976931408,
+                    0.1761841655513285,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.7912933347717054
+            }
+        },
+        {
+            "name": "green-latex",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.16316613127528898,
+                    0.2302793379886235,
+                    0.09158357029501141,
+                    1
+                ],
+                "metallicFactor": 0.7879873016917929,
+                "roughnessFactor": 0.8677644040596018
+            }
+        },
+        {
+            "name": "green-metallic-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.1027913856889323,
+                    0.11783737138320892,
+                    0.12991385178982906,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5871948870216889
+            }
+        },
+        {
+            "name": "green-metallic-paint2",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.010506369045245689,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5393651923985292
+            }
+        },
+        {
+            "name": "green-plastic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.008463697414055083,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6569997816935151
+            }
+        },
+        {
+            "name": "hematite",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.005366861890214467,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5631581250862343
+            }
+        },
+        {
+            "name": "ipswich-pine-221",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.056570430248169414,
+                    0.04917915984143132,
+                    0.0522610053329647,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.579602420291725
+            }
+        },
+        {
+            "name": "light-brown-fabric",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.13651631880109305,
+                    0.04575537020167239,
+                    0.024762878593930504,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.944776278900592
+            }
+        },
+        {
+            "name": "light-red-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.37351911194255955,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.03311983979104051,
+                "roughnessFactor": 0.635993259638619
+            }
+        },
+        {
+            "name": "maroon-plastic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.050963925149086604,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6265448591686448
+            }
+        },
+        {
+            "name": "natural-209",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.11648875883756658,
+                    0.121877251790228,
+                    0.11520470788145382,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.53307890052688
+            }
+        },
+        {
+            "name": "neoprene-rubber",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.1861641557539559,
+                    0.14822924445389685,
+                    0.11428932139310616,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.6210283948011104
+            }
+        },
+        {
+            "name": "nickel",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.24198352441000176,
+                    0.20680098339264952,
+                    0.21818335404265068,
+                    1
+                ],
+                "metallicFactor": 0.9729877561617079,
+                "roughnessFactor": 0.491600622697195
+            }
+        },
+        {
+            "name": "nylon",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.20857231303737517,
+                    0.15678467542601757,
+                    0.06562975652569261,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.4500375032006718
+            }
+        },
+        {
+            "name": "orange-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.37046650308625584,
+                    0.09506045054614855,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.003240412938467753,
+                "roughnessFactor": 0.6520004669067584
+            }
+        },
+        {
+            "name": "pearl-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.25342900789699796,
+                    0.1856010047360812,
+                    0.12033282658144039,
+                    1
+                ],
+                "metallicFactor": 0.25219722202617506,
+                "roughnessFactor": 0.6045298037533463
+            }
+        },
+        {
+            "name": "pickled-oak-260",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.165214792460993,
+                    0.1425661719842119,
+                    0.13079856808413146,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.7152039260564239
+            }
+        },
+        {
+            "name": "pink-fabric",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.5140164458901524,
+                    0.4343850462794902,
+                    0.4511976792771636,
+                    1
+                ],
+                "metallicFactor": 0.8281166602224791,
+                "roughnessFactor": 0.8956307989997901
+            }
+        },
+        {
+            "name": "pink-fabric2",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.4932877581466838,
+                    0.19280154363338048,
+                    0.17279855729144053,
+                    1
+                ],
+                "metallicFactor": 0.9549514107619688,
+                "roughnessFactor": 0.8340408193120955
+            }
+        },
+        {
+            "name": "pink-felt",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.47796318154779627,
+                    0.3763109196074299,
+                    0.36132301847725673,
+                    1
+                ],
+                "metallicFactor": 0.5379035069828094,
+                "roughnessFactor": 0.7633013804880526
+            }
+        },
+        {
+            "name": "pink-jasper",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.010160273812438015,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5670674552778856
+            }
+        },
+        {
+            "name": "pink-plastic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.49802095622353193,
+                    0.05664560414482921,
+                    0.023402500618220707,
+                    1
+                ],
+                "metallicFactor": 0.0660004340919682,
+                "roughnessFactor": 0.6966771557435313
+            }
+        },
+        {
+            "name": "polyethylene",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.5248241626443095,
+                    0.4730746213495218,
+                    0.4327913910780366,
+                    1
+                ],
+                "metallicFactor": 0.47858222415307416,
+                "roughnessFactor": 0.7487396916438858
+            }
+        },
+        {
+            "name": "polyurethane-foam",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.24601550182184925,
+                    0.11370712394274603,
+                    0.09685322358991702,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.9087690734153856
+            }
+        },
+        {
+            "name": "pure-rubber",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.2299850656968002,
+                    0.18929555274576873,
+                    0.154175751420157,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.6360726369494039
+            }
+        },
+        {
+            "name": "purple-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0046220922301660455,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.4666661602318989
+            }
+        },
+        {
+            "name": "pvc",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.4622926640847627
+            }
+        },
+        {
+            "name": "red-fabric",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.386902714063808,
+                    0.011650748013472116,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.8755996880647502
+            }
+        },
+        {
+            "name": "red-fabric2",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.43024785911004637,
+                    0.01253810872515413,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.8857158365061908
+            }
+        },
+        {
+            "name": "red-metallic-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.33897153899118493,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5178458586227703
+            }
+        },
+        {
+            "name": "red-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.49551468258686127
+            }
+        },
+        {
+            "name": "red-plastic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.36850197163665677,
+                    0.06272625134114401,
+                    0.02101103193813944,
+                    1
+                ],
+                "metallicFactor": 0.3125130798183877,
+                "roughnessFactor": 0.6605485468798697
+            }
+        },
+        {
+            "name": "red-specular-plastic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.020523527035360405,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.44927109384765423
+            }
+        },
+        {
+            "name": "silicon-nitrade",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5266287205120299
+            }
+        },
+        {
+            "name": "silver-metallic-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.5410401764618236,
+                    0.5219372711131992,
+                    0.525295095661789,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.7047206426738609
+            }
+        },
+        {
+            "name": "silver-metallic-paint2",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.6317496813991016,
+                    0.5712784943570816,
+                    0.4912419595938767,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.7588832809488208
+            }
+        },
+        {
+            "name": "silver-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.2087401752160541,
+                    0.19018872589285854,
+                    0.18981841900258434,
+                    1
+                ],
+                "metallicFactor": 0.5950739891430235,
+                "roughnessFactor": 0.5878246498341889
+            }
+        },
+        {
+            "name": "special-walnut-224",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.034100813818084816,
+                    0.017723284619134624,
+                    0.0034521163064961456,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6564260433445996
+            }
+        },
+        {
+            "name": "specular-black-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6438560098839239
+            }
+        },
+        {
+            "name": "specular-blue-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.019957620620203995,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6209927135454363
+            }
+        },
+        {
+            "name": "specular-green-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.011828263517530073,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6224206983758301
+            }
+        },
+        {
+            "name": "specular-maroon-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.06401269297306994,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6175976030200999
+            }
+        },
+        {
+            "name": "specular-orange-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.2098499546879724,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.3301010220532797,
+                "roughnessFactor": 0.6639653942813626
+            }
+        },
+        {
+            "name": "specular-red-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.10601163925946362,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6198945541711182
+            }
+        },
+        {
+            "name": "specular-violet-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.021418678163698995,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6299822991456943
+            }
+        },
+        {
+            "name": "specular-white-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.3201441844243206,
+                    0.22683770423367913,
+                    0.12086283268619127,
+                    1
+                ],
+                "metallicFactor": 0.7362704868387493,
+                "roughnessFactor": 0.8342019979873813
+            }
+        },
+        {
+            "name": "specular-yellow-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.1077607715451063,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.7708180919454062,
+                "roughnessFactor": 0.6132122415343244
+            }
+        },
+        {
+            "name": "ss440",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.3432183265684493,
+                    0.04305618258762254,
+                    0.09634294078843862,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5209748282031169
+            }
+        },
+        {
+            "name": "steel",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.10153836612057032,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.42993515774071106
+            }
+        },
+        {
+            "name": "teflon",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.3008938384837073,
+                    0.26719373245022676,
+                    0.25028791789915256,
+                    1
+                ],
+                "metallicFactor": 0.04100402407384684,
+                "roughnessFactor": 0.5540681655118571
+            }
+        },
+        {
+            "name": "tungsten-carbide",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0484795995242951,
+                    0.0,
+                    0.09243551465960351,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.4767158495813702
+            }
+        },
+        {
+            "name": "two-layer-gold",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.220309457402098,
+                    0.19859200950445155,
+                    0.10034639672689562,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6241527861494102
+            }
+        },
+        {
+            "name": "two-layer-silver",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.15203880184255422,
+                    0.0840077358487127,
+                    0.08668395307284582,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5750364709740647
+            }
+        },
+        {
+            "name": "violet-acrylic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.09117515666510882,
+                    0.010007812742496607,
+                    0.01115621718520458,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.6546975692035562
+            }
+        },
+        {
+            "name": "violet-rubber",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.213769144058497,
+                    0.019718752593483387,
+                    0.0894041503132601,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.6786868117001904
+            }
+        },
+        {
+            "name": "white-acrylic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.19484030016091922,
+                    0.1734336022539204,
+                    0.14411268573043653,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.6175492789344984
+            }
+        },
+        {
+            "name": "white-diffuse-bball",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.19128066707317146,
+                    0.13283492021064092,
+                    0.052049322795357816,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.5227958249452282
+            }
+        },
+        {
+            "name": "white-fabric",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.48826324371099356,
+                    0.36100735958514657,
+                    0.26885228594497546,
+                    1
+                ],
+                "metallicFactor": 0.631616308336902,
+                "roughnessFactor": 0.8725922534895267
+            }
+        },
+        {
+            "name": "white-fabric2",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.29444165631635744,
+                    0.28850716135252147,
+                    0.322360470396947,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.9907276389725913
+            }
+        },
+        {
+            "name": "white-marble",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.49751040197743246
+            }
+        },
+        {
+            "name": "white-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.3786965197093737
+            }
+        },
+        {
+            "name": "yellow-matte-plastic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.3556225032609072
+            }
+        },
+        {
+            "name": "yellow-paint",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.24738707076971,
+                    0.14073549820379497,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.6424378969467552
+            }
+        },
+        {
+            "name": "yellow-phenolic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.0036030673112487288,
+                    0.03733165243035773,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 1.0,
+                "roughnessFactor": 0.5814153749117992
+            }
+        },
+        {
+            "name": "yellow-plastic",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.3129917308925898,
+                    0.22394219511319416,
+                    0.0,
+                    1
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 0.6258662097578837
+            }
+        }
+    ]
+}
