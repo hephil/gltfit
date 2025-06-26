@@ -6,10 +6,6 @@ import numpy as np
 import plotly.offline as pyo
 import plotly.graph_objects as go
 
-
-# seemingly lowest roughness that does not lead to NaNs and Infs in numpy evaluations
-MIN_ROUGHNESS = 0.002
-
 C = spvec.CoordSys3D('C')
 
 lx, ly, lz = sp.symbols('lx ly lz', real=True)
@@ -127,13 +123,14 @@ class BSDF:
         return fn
 
     def derivative_np(self):
+        params = self.get_params()
+
         brdf_der = [
-            sp.Derivative(self.bsdf(*self.code_params, *
-                          self.material_params), p).doit()
+            sp.Derivative(self.bsdf, p).doit()
             for p in self.material_params
         ]
         brdf_der_np = [
-            lambdify_fn([*self.code_params, *self.material_params], der)
+            lambdify_fn(params, der)
             for der in brdf_der
         ]
 
@@ -148,15 +145,17 @@ class BSDF:
                 homogenize_array(p, num_wavelengths) for p in mparams
             ]).swapaxes(0, 1)
 
-            vals = [
-                np.array([der_np(
+            print("param_vec: ", param_vec.shape)
+
+            vals = np.array([
+                [der_np(
                     v[..., 0], v[..., 1], v[..., 2],
                     n[..., 0], n[..., 1], n[..., 2],
                     l[..., 0], l[..., 1], l[..., 2],
                     *param_vec[i]
                 ) for i in range(num_wavelengths)
-                ]) for der_np in brdf_der_np
-            ]
+                ] for der_np in brdf_der_np
+            ])
             return vals
 
         return der_fn

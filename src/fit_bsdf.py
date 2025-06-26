@@ -1,4 +1,4 @@
-from scipy.optimize import curve_fit, minimize
+from scipy.optimize import curve_fit, minimize, differential_evolution
 import warnings
 import numpy as np
 
@@ -80,6 +80,13 @@ def fit_bsdf(guess, limits, model, model_der=None):
             jac=jac if model_der != None else None,
             bounds=bounds
         )
+
+        # result = differential_evolution(
+        #     lambda packed: model(*unpack_parameters(packed, param_layout)),
+            
+        #     bounds=bounds
+        # )
+
         popt = unpack_parameters(result.x, param_layout)
 
     model_output = model(*popt)

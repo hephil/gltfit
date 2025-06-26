@@ -5,6 +5,9 @@ from bsdf import *
 
 from sympy.utilities.lambdify import implemented_function
 
+# seemingly lowest roughness that does not lead to NaNs and Infs in numpy evaluations
+MIN_ROUGHNESS = 0.002
+
 
 def mix(a, b, t):
     """
@@ -109,6 +112,40 @@ def fresnel_mix(v, h, ior, base, layer):
     return mix(base, layer, fr)
 
 
+def full_fresnel_mix(v, h, ior, base, layer):
+    """
+    Full dielectric fresnel equation for dielectric materials.
+    Mixes a base bsdf according to transmission f * layer +  (1-fr) * base
+    """
+    VdotH = spvec.dot(v, h)
+    sin_w = sp.sqrt(1 - VdotH**2)
+    esin = sin_w / ior
+    Rs = (
+        (VdotH - ior * sp.sqrt(1 - esin**2))
+        / (VdotH + ior * sp.sqrt(1 - esin**2))
+    ) ** 2
+    Rp = (
+        (sp.sqrt(1 - esin**2) - ior * VdotH)
+        / (sp.sqrt(1 - esin**2) + ior * VdotH)
+    ) ** 2
+    return mix(base, layer, (Rs + Rp) / 2)
+
+
+# def fresnel_mix_specular(v, h, f0_color, ior, weight, base, layer):
+#     """
+#     KHR_materials_specular version of fresnel_mix with 2 additional parameters
+#     to weigh and color the highlight.
+#     """
+#     def max_value(color):
+#         return sp.Max(color.r, color.g, color.b)
+
+#     VdotH = spvec.dot(v, h)
+#     f0 = ((1-ior)/(1+ior)) ^ 2 * f0_color
+#     f0 = min(f0, 1.0)
+#     fr = f0 + (1 - f0)*(1 - abs(VdotH)) ^ 5
+#     return (1 - weight * max_value(fr)) * base + weight * fr * layer
+
+
 def ggx_D(n, h, alpha: float):
     ndoth = spvec.dot(n, h)
     return (alpha * alpha) / (sp.pi * (1 + (alpha * alpha) * (ndoth * ndoth) - (ndoth * ndoth)) ** 2)
@@ -191,7 +228,7 @@ def gltf(v, n, l, base_color, alpha: float, metallic: float, ior: float = 1.5):
 
 
 class glTF_brdf(BSDF):
-    def __init__(self, KHR_materials_ior=True):
+    def __init__(self, KHR_materials_ior=True, KHR_materials_specular=True):
 
         self.params = [vx, vy, vz, nx, ny, nz, lx, ly, lz]
         self.code_params = [vx, vy, vz, nx, ny, nz, lx, ly, lz]

@@ -15,6 +15,7 @@ The basic implementation of glTF is limited with only 3 parameters (base_color, 
 - [ ] KHR_materials_iridescence: iridescent materials
 - [ ] KHR_materials_sheen: cloth and fabric material
 - [ ] KHR_materials_transmission : transmissive materials
+- [ ] KHR_materials_diffuse_transmission: diffuse transmissions
 - [ ] KHR_materials_volume: homogeneous non-scattering media
 - [ ] KHR_materials_dispersion: dispersing media
 
