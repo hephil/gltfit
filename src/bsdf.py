@@ -1,25 +1,27 @@
 # Common functions to reparametrize, plot and test BSDF functions
 
 import sympy as sp
-import sympy.vector as spvec
 import numpy as np
 import plotly.offline as pyo
 import plotly.graph_objects as go
 
-C = spvec.CoordSys3D('C')
 
-lx, ly, lz = sp.symbols('lx ly lz', real=True)
-vx, vy, vz = sp.symbols('vx vy vz', real=True)
-nx, ny, nz = sp.symbols('nx ny nz', real=True)
-hx, hy, hz = sp.symbols('hx hy hz', real=True)
-
-L = lx*C.i + ly*C.j + lz*C.k
-V = vx*C.i + vy*C.j + vz*C.k
-N = nx*C.i + ny*C.j + nz*C.k
-H = hx*C.i + hy*C.j + hz*C.k
+def linear_to_srgb(c):
+    return np.where(
+        c <= 0.0031308,
+        12.92 * c,
+        (1.0 + 0.055) * np.power(c, 1.0 / 2.4) - 0.055
+    )
 
 
-def dot(w1, w2):
+def atleast_nd(arr, n):
+    arr = np.asarray(arr)
+    if arr.ndim >= n:
+        return arr
+    return arr.reshape((1,) * (n - arr.ndim) + arr.shape)
+
+
+def np_dot(w1, w2):
     val = np.sum(w1 * w2, keepdims=False, axis=-1)
     return val
 
@@ -50,13 +52,16 @@ def lambdify_fn(params, sympy_expr):
     # In newer versions of sympy, we might need to overwrite the array function as well because sympy puts constants and arrays
     # into a list and calls array on them which doesn't work at all mmmhh...
 
+    def np_dot(a, b):
+        return np.sum(a * b, axis=0)
+
     return sp.lambdify(
         params,
         sympy_expr,
         modules=[{
             "amin": elementwise_min,
             "amax": elementwise_max,
-            "Dot": dot,
+            "Dot": np_dot,
             # "elementwise_mul": lambda a, b: a*b,
         }, "numpy"],
     )
@@ -99,24 +104,46 @@ class BSDF:
         # import inspect
         # print(inspect.getsource(brdf_np))
 
+        # def brdf_np(vx, vy, vz, nx, ny, nz, lx, ly, lz, bcx, bcy, bcz, alpha, m, ior):
+        #     v = np.array((vx, vy, vz))
+        #     n = np.array((nx, ny, nz))
+        #     l = np.array((lx, ly, lz))
+        #     ndotl = np_dot(l, n)
+        #     ndotv = np_dot(v, n)
+        #     l_hem = np.greater(ndotl, 0)
+        #     v_hem = np.greater(ndotv, 0)
+        #     hem = np.logical_and.reduce([l_hem, v_hem])
+        #     lamb = np.array((bcx/np.pi, bcy/np.pi, bcz/np.pi))
+        #     print(hem, lamb)
+        #     ret = np.select([hem, True], [lamb, 0], default=np.nan)
+        #     return ret
+
         def fn(v, n, l, *mparams):
 
-            v = np.ones_like(l) * v
-            n = np.ones_like(l) * n
+            v = np.ones_like(l) * v  # np.broadcast_to(v, l.shape)
+            n = np.ones_like(l) * n  # np.broadcast_to(n, l.shape)
 
-            mparams = [np.atleast_1d(mp) for mp in mparams]
-            num_wavelengths = np.max([p.shape[0] for p in mparams])
+            num_dims = np.max(
+                np.array([len(v.shape), len(n.shape), len(l.shape)])
+            )
 
-            param_vec = np.array([
-                homogenize_array(p, num_wavelengths) for p in mparams
-            ]).swapaxes(0, 1)
+            v, n, l = (
+                atleast_nd(v, num_dims),
+                atleast_nd(n, num_dims),
+                atleast_nd(l, num_dims)
+            )
 
-            vals = np.array([brdf_np(
+            # mparams = [atleast_nd(mparams, num_dims)]
+            mparams = np.concatenate([np.atleast_1d(mp) for mp in mparams])
+            mparams = np.array([np.atleast_1d(mp) for mp in mparams])
+
+            vals = brdf_np(
                 v[..., 0], v[..., 1], v[..., 2],
                 n[..., 0], n[..., 1], n[..., 2],
                 l[..., 0], l[..., 1], l[..., 2],
-                *param_vec[i]
-            ) for i in range(num_wavelengths)])
+                *mparams
+            )
+            # print(vals.shape)
 
             return vals
 
@@ -135,8 +162,8 @@ class BSDF:
         ]
 
         def der_fn(v, n, l, *mparams):
-            v = np.ones_like(l) * v
-            n = np.ones_like(l) * n
+            # v = np.ones_like(l) * v
+            # n = np.ones_like(l) * n
 
             mparams = [np.atleast_1d(mp) for mp in mparams]
             num_wavelengths = np.max([p.shape[0] for p in mparams])
@@ -144,8 +171,6 @@ class BSDF:
             param_vec = np.array([
                 homogenize_array(p, num_wavelengths) for p in mparams
             ]).swapaxes(0, 1)
-
-            print("param_vec: ", param_vec.shape)
 
             vals = np.array([
                 [der_np(
@@ -219,6 +244,7 @@ def plot_vector(name, color, v, negative=False):
 def plot_brdf(name, brdf, V_val, normalize=None):
     # num1, num2 = 18, 36
     num1, num2 = 180, 360
+    # num1, num2 = 720, 1440
     sphere = generate_sphere_directions(np.pi, 2 * np.pi, num1, num2, -1)
     hemisphere = generate_sphere_directions(
         0.5 * np.pi, 2 * np.pi, 90, 360, -1)
@@ -228,41 +254,74 @@ def plot_brdf(name, brdf, V_val, normalize=None):
     V_vec, V_ann = plot_vector("V", "brown", V_val.flatten())
 
     brdf_vals = brdf(V_val, N_val, L_val)
-
     brdf_vals = np.atleast_2d(brdf_vals)
-    brdf_vals = np.mean(brdf_vals, axis=0)
 
     if normalize == True:
         brdf_vals = brdf_vals / (np.max(brdf_vals) + 0.01)
 
-    brdf_vals = brdf_vals.reshape(num1, num2)
+    # print("brdf_vals: ", brdf_vals.shape)
+    brdf_vals = np.swapaxes(brdf_vals, 0, 1).reshape(num1, num2, 3)
     L_val = L_val.reshape(num1, num2, 3)
 
     is_valid = np.all(np.isfinite(brdf_vals)) and np.all(brdf_vals >= 0)
-    print(
-        "All Values Valid!"
-        if is_valid
-        else "ERROR in brdf evaluation!"
-    )
+    if not is_valid:
+        print("ERROR in brdf evaluation!")
 
     if not is_valid:
         return
 
     min_max_val = 100000
-    xx = np.clip(brdf_vals * L_val[..., 0], -min_max_val, min_max_val)
-    yy = np.clip(brdf_vals * L_val[..., 1], -min_max_val, min_max_val)
-    zz = np.clip(brdf_vals * L_val[..., 2], -min_max_val, min_max_val)
+    brdf_lum = np.sum(brdf_vals, axis=-1)
+    xx = np.clip(brdf_lum * L_val[..., 0], -min_max_val, min_max_val)
+    yy = np.clip(brdf_lum * L_val[..., 1], -min_max_val, min_max_val)
+    zz = np.clip(brdf_lum * L_val[..., 2], -min_max_val, min_max_val)
 
-    plot = go.Surface(
+    # print(xx.shape)
+
+    # plot = go.Surface(
+    #     name=name,
+    #     x=xx,
+    #     y=yy,
+    #     z=zz,
+    #     showscale=False,
+    #     cmin=-1,
+    #     cmax=1,
+    #     opacity=0.3,
+    #     surfacecolor=brdf_lum,
+    # )
+
+    i_list, j_list, k_list = [], [], []
+
+    for r in range(num1 - 1):
+        for c in range(num2 - 1):
+            # Flattened vertex indices
+            v0 = r * num2 + c
+            v1 = v0 + 1
+            v2 = v0 + num2
+            v3 = v2 + 1
+
+            # Triangle 1 (v0, v1, v2)
+            i_list.append(v0)
+            j_list.append(v1)
+            k_list.append(v2)
+
+            # Triangle 2 (v1, v3, v2)
+            i_list.append(v1)
+            j_list.append(v3)
+            k_list.append(v2)
+
+    i, j, k = np.array(i_list), np.array(j_list), np.array(k_list)
+
+    plot = go.Mesh3d(
         name=name,
-        x=xx,
-        y=yy,
-        z=zz,
-        showscale=False,
-        cmin=-1,
-        cmax=1,
-        opacity=0.3,
-        surfacecolor=brdf_vals,
+        x=xx.flatten(),
+        y=yy.flatten(),
+        z=zz.flatten(),
+        i=i.flatten(),
+        j=j.flatten(),
+        k=k.flatten(),
+        opacity=1,
+        vertexcolor=linear_to_srgb(brdf_vals.reshape(-1, 3))
     )
 
     data = [plot, N_vec, V_vec]

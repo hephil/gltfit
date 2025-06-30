@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import glob
 
 # Constants
 BRDF_SAMPLING_RES_THETA_H = 90
@@ -11,6 +13,10 @@ BLUE_SCALE = 1.66 / 1500.0
 M_PI = np.pi
 
 
+def get_merl_material_list(dir="../merl100/brdfs/"):
+    return [os.path.splitext(os.path.basename(m))[0] for m in glob.glob(os.path.join(dir, "*.binary"))]
+
+
 def np_normalize(a):
     """ normalize the first dimension of an input vector"""
     l2 = np.sum(a**2, axis=-1, keepdims=True)
@@ -18,7 +24,7 @@ def np_normalize(a):
 
 
 def rotate_vector(vec, axis, angle):
-    angle = angle[...,np.newaxis]
+    angle = angle[..., np.newaxis]
     axis = np_normalize(axis)
     cos_a = np.cos(angle)
     sin_a = np.sin(angle)
@@ -210,8 +216,21 @@ def read_merl_brdf(filename):
             brdf = np.fromfile(f, dtype=np.float64, count=3 * n)
 
             brdf = brdf.reshape((3, dims[0], dims[1], dims[2]))
-            brdf = np.array([RED_SCALE * brdf[0], GREEN_SCALE * brdf[1], BLUE_SCALE * brdf[2]])
+            brdf = np.array(
+                [RED_SCALE * brdf[0], GREEN_SCALE * brdf[1], BLUE_SCALE * brdf[2]])
             return np.clip(brdf, 0, np.inf)
     except Exception as e:
         print(f"Error reading BRDF file: {e}")
         return None
+
+
+def merl_brdf_eval(v, n, l, merl_data):
+    ret = lookup_brdf_val_vectorized(
+        merl_data,
+        np.arccos(v[..., 2]),
+        np.arctan2(v[..., 1], v[..., 0]),
+        np.arccos(l[..., 2]),
+        np.arctan2(l[..., 1], l[..., 0])
+    )
+    print(ret.shape)
+    return ret

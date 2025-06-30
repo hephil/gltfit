@@ -8,10 +8,6 @@ from glTF import *
 from fit_bsdf import *
 
 
-def get_merl_material_list(dir="../merl100/brdfs/"):
-    return [os.path.splitext(os.path.basename(m))[0] for m in glob.glob(os.path.join(dir, "*.binary"))]
-
-
 def fit_merl_brdf(material, dir="../merl100/brdfs/"):
     """
     Fit the glTF material model to a Merl BRDF
@@ -147,7 +143,6 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/"):
         grad = [2 * (residual * f).mean(axis=0) for f in b]
         return disentangle_gradients(grad, layout)
 
-
     result, optimal_params, model_output = fit_bsdf(
         list(guess.values()),
         limits,
@@ -175,33 +170,15 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/"):
 def fit_all_merl_materials(dir, KHR_materials_ior=False):
 
     import tqdm
-    materials = get_merl_material_list(dir)
+    materials = merl.get_merl_material_list(dir)
     param_dicts = {material: fit_merl_brdf(
         material, dir) for material in tqdm.tqdm(materials)}
 
     brdf = glTF_brdf(KHR_materials_ior=KHR_materials_ior)
 
     materials_dict = {
-        "materials": [
-        ]
+        "materials": [brdf.to_json(material, param_dict) for material, param_dict in param_dicts.items()]
     }
-    for material, param_dict in param_dicts.items():
-        material_dict = {
-            "name": material,
-        }
-
-        def deep_merge(d1, d2):
-            for k, v in d2.items():
-                if k in d1 and isinstance(d1[k], dict) and isinstance(v, dict):
-                    deep_merge(d1[k], v)
-                else:
-                    d1[k] = v
-
-        for p in brdf.material_params:
-            p_dict = brdf.json_params[p](param_dict[p])
-            deep_merge(material_dict, p_dict)
-
-        materials_dict["materials"].append(material_dict)
 
     return json.dumps(materials_dict, indent=4, sort_keys=True)
 
