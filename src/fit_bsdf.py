@@ -55,7 +55,7 @@ def unpack_parameters(params_vector, layout):
     return params
 
 
-def fit_bsdf(guess, limits, model, model_der=None):
+def fit_bsdf(guess, limits, model, jac=None):
     np.random.seed(seed=42)
 
     param_layout = [
@@ -71,19 +71,16 @@ def fit_bsdf(guess, limits, model, model_der=None):
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
-        def jac(packed):
-            return model_der(*unpack_parameters(packed, param_layout))
 
         result = minimize(
             lambda packed: model(*unpack_parameters(packed, param_layout)),
             x0=x0,
-            jac=jac if model_der != None else None,
-            bounds=bounds
+            jac=jac,
+            bounds=bounds,
         )
 
         # result = differential_evolution(
         #     lambda packed: model(*unpack_parameters(packed, param_layout)),
-            
         #     bounds=bounds
         # )
 

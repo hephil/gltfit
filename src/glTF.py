@@ -17,6 +17,7 @@ vx, vy, vz = sp.symbols('vx vy vz', real=True)
 nx, ny, nz = sp.symbols('nx ny nz', real=True)
 hx, hy, hz = sp.symbols('hx hy hz', real=True)
 bcx, bcy, bcz = sp.symbols('bcx bcy bcz', real=True)
+scx, scy, scz = sp.symbols('scx scy scz', real=True)
 
 L_SYM = sp.MatrixSymbol("L", 3, 1)
 V_SYM = sp.MatrixSymbol("V", 3, 1)
@@ -30,6 +31,7 @@ V = sp.Array([vx, vy, vz])
 N = sp.Array([nx, ny, nz])
 H = sp.Array([hx, hy, hz])
 BC = sp.Array([bcx, bcy, bcz])
+SC = sp.Array([scx, scy, scz])
 C1 = sp.Array([1, 1, 1])
 
 
@@ -112,23 +114,44 @@ def conductor_fresnel(v, h, f0, bsdf):
     return bsdf * (f0 + sp.Array([1 - f for f in f0]) * (1 - abs(VdotH)) ** 5)
 
 
-def fresnel_mix(v, h, ior, base, layer):
+# def fresnel_mix(v, h, ior, base, layer):
+#     """
+#     Schlick's approximation for Fresnel reflections on dielectric materials.
+#     Mixes a base bsdf according to transmission f * layer + (1-fr) * base
+#     """
+#     VdotH = spvec.dot(v, h)
+#     f0 = ((1-ior)/(1+ior)) ** 2
+#     fr = f0 + (1 - f0)*(1 - abs(VdotH)) ** 5
+#     return mix(base, layer, fr)
+
+
+def max_value(color):
+    return sp.Max(color[0], sp.Max(color[1], color[2]))
+
+
+def fresnel_mix(v, h, f0_color, ior, weight, base, layer):
     """
     Schlick's approximation for Fresnel reflections on dielectric materials.
-    Mixes a base bsdf according to transmission f * layer +  (1-fr) * base
+    Mixes a base bsdf according to transmission f * layer + (1-fr) * base.
+    Includes weight and f0_color term to implement KHR_materials_specular
     """
-    VdotH = spvec.dot(v, h)
-    f0 = ((1-ior)/(1+ior)) ** 2
-    fr = f0 + (1 - f0)*(1 - abs(VdotH)) ** 5
-    return mix(base, layer, fr)
+    f0 = ((1-ior)/(1+ior)) ** 2 * f0_color
+    # need to manually introduce min function here because sympy translates elementwise_min as amin(numpy.asarray....)
+    f0 = sp.Array([sp.Function("minimum")(f, 1) for f in f0])
+    fr = f0 + (C1 - f0) * (1 - abs(spvec.dot(v, h))) ** 5
+    return (1 - weight * max_value(fr)) * base + weight * sp.Array([fr[i] * layer[i] for i in range(len(fr))])
 
 
-def gltf(v, n, l, base_color, alpha: float, metallic: float, ior: float = 1.5):
+def gltf(v, n, l, base_color, alpha: float, metallic: float, ior: float = 1.5, specular=1, specular_color=C1):
     nv = spvec.dot(n, v)
     nl = spvec.dot(n, l)
     h = half_vector(v, n, l)
+
     dielectric_brdf = fresnel_mix(
-        v, h, ior,
+        v, h,
+        specular_color,
+        ior,
+        specular,
         diffuse_component(base_color),
         C1 * specular_component(
             specular_V_GGX(v, n, l, alpha), specular_D_GGX(n, h, alpha)
@@ -145,7 +168,10 @@ def gltf(v, n, l, base_color, alpha: float, metallic: float, ior: float = 1.5):
 
 
 class glTF_brdf(BSDF):
-    def __init__(self, KHR_materials_ior=True, KHR_materials_specular=True):
+    def __init__(self, KHR_materials_ior=False, KHR_materials_specular=False):
+
+        self.KHR_materials_ior = KHR_materials_ior
+        self.KHR_materials_specular = KHR_materials_specular
 
         self.params = [vx, vy, vz, nx, ny, nz, lx, ly, lz]
         # self.params = [V, N, L]
@@ -156,12 +182,24 @@ class glTF_brdf(BSDF):
         self.alpha = sp.Symbol("alpha", nonnegative=True, real=True)
         self.metallic = sp.Symbol("m", nonnegative=True, real=True)
         self.ior = sp.Symbol("ior", nonnegative=True, real=True)
+        self.specular = sp.Symbol("specular", nonnegative=True, real=True)
+        self.specular_color = SC
 
+        self.defaults = {
+            "base_color": np.array([1, 1, 1]),
+            "alpha": 1,
+            "metallic": 1,
+            "ior": 1.5,
+            "specular": 1.0,
+            "specular_color": np.array([1, 1, 1]),
+        }
         self.bsdf_params = {
             "base_color": self.base_color,
             "alpha": self.alpha,
             "metallic": self.metallic,
-            "ior": self.ior if KHR_materials_ior else 1.5
+            "ior": self.ior if KHR_materials_ior else self.defaults["ior"],
+            "specular": self.specular if KHR_materials_specular else self.defaults["specular"],
+            "specular_color": self.specular_color if KHR_materials_specular else C1,
         }
 
         self.bsdf = gltf(V, N, L, *self.bsdf_params.values())
@@ -181,31 +219,28 @@ class glTF_brdf(BSDF):
             "alpha": (0, 1),
             "metallic": (0, 1)
         }
-        self.defaults = {
-            "base_color": np.array([1, 1, 1]),
-            "alpha": 1,
-            "metallic": 1,
-        }
         self.first_guess = {
             "base_color": np.array([0.5, 0.5, 0.5]),
             "alpha": 0.5,
             "metallic": 0.5,
         }
 
-        self.json_params = {
-            "base_color": lambda c: {"pbrMetallicRoughness": {"baseColorFactor": [c[0], c[1], c[2], 1]}},
-            "alpha": lambda a: {"pbrMetallicRoughness": {"roughnessFactor": np.sqrt(a.item())}},
-            "metallic": lambda m: {"pbrMetallicRoughness": {"metallicFactor": m.item()}},
-        }
-
         if KHR_materials_ior == True:
             self.material_params.append(self.ior)
-            self.json_params["ior"] = lambda eta: {
-                "extensions": {"KHR_materials_ior": {"ior": eta.item()}}
-            }
-            self.bounds["ior"] = (0, np.inf)
-            self.defaults["ior"] = 1.5
+            self.bounds["ior"] = (0, 100)
             self.first_guess["ior"] = 1.5
+
+        if KHR_materials_specular == True:
+            self.material_params.extend([
+                self.specular,
+                self.specular_color[0],
+                self.specular_color[1],
+                self.specular_color[2]
+            ])
+            self.bounds["specular"] = (0, 1)
+            self.bounds["specular_color"] = (0, 1)
+            self.first_guess["specular"] = 1
+            self.first_guess["specular_color"] = np.array([1, 1, 1])
 
     def to_json(self, name, params):
         return {
@@ -219,6 +254,21 @@ class glTF_brdf(BSDF):
                 ],
                 "roughnessFactor": np.sqrt(params['alpha'].item()),
                 "metallicFactor": params['metallic'].item(),
+            },
+            "extensions": {
+                **({
+                    "KHR_materials_ior": {
+                        "ior": params['ior'].item()
+                    }
+                } if self.KHR_materials_ior else {}
+                ),
+                **({
+                    "KHR_materials_specular": {
+                        "specularFactor": params['specular'].item(),
+                        "specularColor": list(params['specular_color'])
+                    }
+                } if self.KHR_materials_specular else {}
+                ),
             }
         }
 
@@ -237,7 +287,9 @@ def read_glTF_materials(filename):
             base_color = np.array([1, 1, 1])
             alpha = 1
             metallic = 1
-            ior = 1.5
+            ior = None
+            specular = None
+            specular_color = None
             if "name" in mat:
                 name = mat["name"]
             if "pbrMetallicRoughness" in mat:
@@ -255,5 +307,9 @@ def read_glTF_materials(filename):
                     if "ior" in ext["KHR_materials_ior"]:
                         ior = ext["KHR_materials_ior"]["ior"]
 
-            ret_dict[name] = [base_color, alpha, metallic, ior]
+            ret_dict[name] = {"base_color": base_color, "alpha": alpha, "metallic": metallic,
+                              "ior": ior, "specular": specular, "specular_color": specular_color}
+            ret_dict[name] = {k: v for k,
+                              v in ret_dict[name].items() if v is not None}
+
         return ret_dict

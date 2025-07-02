@@ -62,9 +62,16 @@ def lambdify_fn(params, sympy_expr):
             "amin": elementwise_min,
             "amax": elementwise_max,
             "Dot": np_dot,
-            # "elementwise_mul": lambda a, b: a*b,
+            'minimum': np.minimum,
         }, "numpy"],
     )
+
+    # from sympy.utilities.autowrap import ufuncify
+
+    # return ufuncify(
+    #     params,
+    #     sympy_expr
+    # )
 
 
 def homogenize_array(x, N):
@@ -97,26 +104,22 @@ class BSDF:
             for p in self.material_params
         ]
 
-    def get_np(self):
+    def get_np(self, gradient=False):
         params = self.get_params()
         brdf_np = lambdify_fn(params, self.bsdf)
 
-        # import inspect
-        # print(inspect.getsource(brdf_np))
+        brdf_der = []
+        brdf_der_np = []
 
-        # def brdf_np(vx, vy, vz, nx, ny, nz, lx, ly, lz, bcx, bcy, bcz, alpha, m, ior):
-        #     v = np.array((vx, vy, vz))
-        #     n = np.array((nx, ny, nz))
-        #     l = np.array((lx, ly, lz))
-        #     ndotl = np_dot(l, n)
-        #     ndotv = np_dot(v, n)
-        #     l_hem = np.greater(ndotl, 0)
-        #     v_hem = np.greater(ndotv, 0)
-        #     hem = np.logical_and.reduce([l_hem, v_hem])
-        #     lamb = np.array((bcx/np.pi, bcy/np.pi, bcz/np.pi))
-        #     print(hem, lamb)
-        #     ret = np.select([hem, True], [lamb, 0], default=np.nan)
-        #     return ret
+        if gradient == True:
+            brdf_der = [
+                sp.Derivative(self.bsdf, p).doit()
+                for p in self.material_params
+            ]
+            brdf_der_np = [
+                lambdify_fn(params, der)
+                for der in brdf_der
+            ]
 
         def fn(v, n, l, *mparams):
 
@@ -143,47 +146,21 @@ class BSDF:
                 l[..., 0], l[..., 1], l[..., 2],
                 *mparams
             )
-            # print(vals.shape)
+
+            if gradient == True:
+                grads = np.array([
+                    der_np(
+                        v[..., 0], v[..., 1], v[..., 2],
+                        n[..., 0], n[..., 1], n[..., 2],
+                        l[..., 0], l[..., 1], l[..., 2],
+                        *mparams
+                    ) for der_np in brdf_der_np
+                ])
+                ret = (ret, grads)
 
             return vals
 
         return fn
-
-    def derivative_np(self):
-        params = self.get_params()
-
-        brdf_der = [
-            sp.Derivative(self.bsdf, p).doit()
-            for p in self.material_params
-        ]
-        brdf_der_np = [
-            lambdify_fn(params, der)
-            for der in brdf_der
-        ]
-
-        def der_fn(v, n, l, *mparams):
-            # v = np.ones_like(l) * v
-            # n = np.ones_like(l) * n
-
-            mparams = [np.atleast_1d(mp) for mp in mparams]
-            num_wavelengths = np.max([p.shape[0] for p in mparams])
-
-            param_vec = np.array([
-                homogenize_array(p, num_wavelengths) for p in mparams
-            ]).swapaxes(0, 1)
-
-            vals = np.array([
-                [der_np(
-                    v[..., 0], v[..., 1], v[..., 2],
-                    n[..., 0], n[..., 1], n[..., 2],
-                    l[..., 0], l[..., 1], l[..., 2],
-                    *param_vec[i]
-                ) for i in range(num_wavelengths)
-                ] for der_np in brdf_der_np
-            ])
-            return vals
-
-        return der_fn
 
 
 def integrate_spherical_function(fun, num_samples=100000):
@@ -203,6 +180,7 @@ def integrate_spherical_function(fun, num_samples=100000):
 
     # average of all wavelengths (usually RGB)
     vals = np.atleast_2d(vals)
+    # print(f"expected shape: ({3},{num_samples}), actual: {vals.shape}")
     vals = np.mean(vals, axis=0)
 
     if np.any(np.logical_not(np.isfinite(vals))) and np.any(vals < 0):
@@ -255,6 +233,7 @@ def plot_brdf(name, brdf, V_val, normalize=None):
 
     brdf_vals = brdf(V_val, N_val, L_val)
     brdf_vals = np.atleast_2d(brdf_vals)
+    # print(f"expected shape: ({3}, {num1*num2}), actual: {brdf_vals.shape}")
 
     if normalize == True:
         brdf_vals = brdf_vals / (np.max(brdf_vals) + 0.01)
