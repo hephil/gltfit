@@ -173,7 +173,7 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
 def fit_all_merl_materials(dir, KHR_materials_ior=False, KHR_materials_specular=False, analytic_gradient= False):
 
     import tqdm
-    materials = merl.get_merl_material_list(dir)[0:1]
+    materials = merl.get_merl_material_list(dir)
     param_dicts = {
         material: fit_merl_brdf(
             material,

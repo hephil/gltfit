@@ -123,8 +123,8 @@ class BSDF:
 
         def fn(v, n, l, *mparams):
 
-            v = np.ones_like(l) * v  # np.broadcast_to(v, l.shape)
-            n = np.ones_like(l) * n  # np.broadcast_to(n, l.shape)
+            v = np.broadcast_to(v, l.shape)
+            n = np.broadcast_to(n, l.shape)
 
             num_dims = np.max(
                 np.array([len(v.shape), len(n.shape), len(l.shape)])
