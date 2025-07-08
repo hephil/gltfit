@@ -29,7 +29,7 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
     # theta_h, theta_d, phi_d = theta_h.ravel(), theta_d.ravel(), phi_d.ravel()
     # theta_o, phi_o, theta_i, phi_i = merl.half_diff_to_std_coords(
     #     theta_h,
-    #     0 * np.ones_like(theta_h),
+    #     np.broadcast_to(0, theta_h.shape),
     #     theta_d,
     #     phi_d,
     # )
@@ -76,7 +76,7 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
         phi_d[0::downsample_factor]
     )
     theta_o, phi_o, theta_i, phi_i = merl.half_diff_to_std_coords(
-        theta_h, phi_h_val * np.ones_like(theta_h), theta_d, phi_d
+        theta_h, np.broadcast_to(phi_h_val, theta_h.shape), theta_d, phi_d
     )
 
     n = np.array([0, 0, 1])
@@ -115,7 +115,7 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
     # to, po = np.arccos(0.85 * uv[1]), uv[0] * 2 * np.pi
     # v = np.stack((np.sin(to) * np.cos(po), np.sin(to)
     #               * np.sin(po), np.cos(to)), axis=-1)
-    # sample_weights = np.ones_like(to)
+    # sample_weights = np.broadcast_to(1, to.shape)
     # measured = merl.lookup_brdf_val_vectorized(merl_data, to, po, ti, pi)
 
     """

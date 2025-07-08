@@ -185,7 +185,7 @@ def generate_dense_half_diffs(phi_h_val):
     theta_h = np.array([(((i + 0.5)**2) * (np.pi / 2.0)) / (BRDF_SAMPLING_RES_THETA_H**2)
                         for i in range(BRDF_SAMPLING_RES_THETA_H)])
 
-    phi_h = np.ones_like(theta_h) * phi_h_val
+    phi_h = np.broadcast_to(phi_h_val, theta_h.shape)
 
     theta_d = np.array([((i + 0.5) * (np.pi * 0.5) / BRDF_SAMPLING_RES_THETA_D)
                         for i in range(BRDF_SAMPLING_RES_THETA_D)])
