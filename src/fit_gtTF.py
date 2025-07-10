@@ -8,7 +8,7 @@ from glTF import *
 from fit_bsdf import *
 
 
-def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KHR_materials_specular=False, analytic_gradient=False):
+def fit_merl_brdf(material, dir="../merl100/brdfs/", analytic_gradient=False, **kwargs):
     """
     Fit the glTF material model to a Merl BRDF
     """
@@ -124,8 +124,7 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
     Set material model and generate numpy lambda
     """
 
-    brdf = glTF_brdf(KHR_materials_ior=KHR_materials_ior,
-                     KHR_materials_specular=KHR_materials_specular)
+    brdf = glTF_brdf(**kwargs)
     guess = brdf.first_guess
     limits = list(brdf.bounds.values())
     brdf_np = brdf.get_np(gradient=analytic_gradient)
@@ -172,7 +171,7 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
     return param_dict, result.fun
 
 
-def fit_all_merl_materials(dir, KHR_materials_ior=False, KHR_materials_specular=False, analytic_gradient= False):
+def fit_all_merl_materials(dir, analytic_gradient=False, **kwargs):
 
     import tqdm
     materials = merl.get_merl_material_list(dir)
@@ -180,15 +179,13 @@ def fit_all_merl_materials(dir, KHR_materials_ior=False, KHR_materials_specular=
         material: fit_merl_brdf(
             material,
             dir,
-            KHR_materials_ior=KHR_materials_ior,
-            KHR_materials_specular=KHR_materials_specular,
-            analytic_gradient=analytic_gradient
+            analytic_gradient=analytic_gradient,
+            **kwargs
         )
         for material in tqdm.tqdm(materials)
     }
 
-    brdf = glTF_brdf(KHR_materials_ior=KHR_materials_ior,
-                     KHR_materials_specular=KHR_materials_specular)
+    brdf = glTF_brdf(**kwargs)
 
     materials_dict = {
         "materials": [brdf.to_json(material, param_dict) for material, (param_dict, _) in results_dict.items()]

@@ -10,8 +10,8 @@ The basic implementation of glTF is limited with only 3 parameters (base_color, 
 
 - [x] basic metallic-roughness glTF pbr model
 - [x] KHR_materials_ior: custom index of refraction
-- [ ] KHR_materials_clearcoat: materials with a clearcoat
-- [ ] KHR_materials_specular: custom specular factor
+- [x] KHR_materials_clearcoat: materials with a clearcoat
+- [x] KHR_materials_specular: custom specular factor
 - [ ] KHR_materials_iridescence: iridescent materials
 - [ ] KHR_materials_sheen: cloth and fabric material
 - [ ] KHR_materials_transmission : transmissive materials

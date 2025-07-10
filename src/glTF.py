@@ -108,17 +108,6 @@ def conductor_fresnel(v, h, f0, bsdf):
     return bsdf * (f0 + (1 - f0) * (1 - abs(VdotH)) ** 5)
 
 
-# def fresnel_mix(v, h, ior, base, layer):
-#     """
-#     Schlick's approximation for Fresnel reflections on dielectric materials.
-#     Mixes a base bsdf according to transmission f * layer + (1-fr) * base
-#     """
-#     VdotH = spvec.dot(v, h)
-#     f0 = ((1-ior)/(1+ior)) ** 2
-#     fr = f0 + (1 - f0)*(1 - abs(VdotH)) ** 5
-#     return mix(base, layer, fr)
-
-
 def fresnel_mix(v, h, f0_color_0, f0_color_1, f0_color_2, ior, weight, base, layer):
     """
     Schlick's approximation for Fresnel reflections on dielectric materials.
@@ -130,7 +119,12 @@ def fresnel_mix(v, h, f0_color_0, f0_color_1, f0_color_2, ior, weight, base, lay
     operation requires recombination of different wavelength's computations
     whereas most other components of a BRDF are independent
     """
+    # # non KHR_materials_ior version
+    # f0 = 0.04 # f0 = 0.04 for ior=1.5
+    # fr = f0 + (1 - f0)*(1 - abs(spvec.dot(v, h))) ** 5
+    # return mix(base, layer, fr)
 
+    # # non KHR_materials_specular version
     # f0 = ((1-ior)/(1+ior)) ** 2
     # fr = f0 + (1 - f0)*(1 - abs(spvec.dot(v, h))) ** 5
     # return mix(base, layer, fr)
@@ -152,6 +146,12 @@ def fresnel_mix(v, h, f0_color_0, f0_color_1, f0_color_2, ior, weight, base, lay
     return (1 - weight * max_value(fr_0, fr_1, fr_2)) * base + weight * fr_0 * layer
 
 
+def fresnel_coat(v, n, ior, weight, base, layer):
+    f0 = ((1-ior)/(1+ior)) ** 2
+    fr = f0 + (1 - f0)*(1 - abs(spvec.dot(v, n))) ** 5
+    return mix(base, layer, weight * fr)
+
+
 default_ior = 1.5
 
 base_color_name = 'base_color'
@@ -163,6 +163,8 @@ specular_color_name = 'specular_color'
 specular_color0_name = 'specular_color0'
 specular_color1_name = 'specular_color1'
 specular_color2_name = 'specular_color2'
+clearcoat_name = "clearcoat"
+clearcoat_roughness_name = "clearcoat_alpha"
 
 
 def gltf(v, n, l, **kwargs):
@@ -174,10 +176,16 @@ def gltf(v, n, l, **kwargs):
     specular_color_0 = kwargs.get(specular_color0_name, 1)
     specular_color_1 = kwargs.get(specular_color1_name, 1)
     specular_color_2 = kwargs.get(specular_color2_name, 1)
+    clearcoat = kwargs.get(clearcoat_name, 0)
+    clearcoat_alpha = kwargs.get(clearcoat_roughness_name, 0)
 
     nv = spvec.dot(n, v)
     nl = spvec.dot(n, l)
     h = half_vector(v, n, l)
+
+    specular_brdf = specular_component(
+        specular_V_GGX(v, n, l, alpha), specular_D_GGX(n, h, alpha)
+    )
 
     dielectric_brdf = fresnel_mix(
         v, h,
@@ -187,26 +195,41 @@ def gltf(v, n, l, **kwargs):
         ior,
         specular,
         diffuse_component(base_color),
-        specular_component(
-            specular_V_GGX(v, n, l, alpha), specular_D_GGX(n, h, alpha)
-        )
+        specular_brdf
     )
 
     metal_brdf = conductor_fresnel(
-        v, h, base_color, specular_component(
-            specular_V_GGX(
-                v, n, l, alpha), specular_D_GGX(n, h, alpha)
-        )
+        v, h, base_color, specular_brdf
     )
 
-    return sp.Piecewise((mix(dielectric_brdf, metal_brdf, metallic), (nv > 0) & (nl > 0)), (0, True))
+    material = mix(dielectric_brdf, metal_brdf, metallic)
+
+    # clearcoat
+    clearcoat_n = n
+    clearcoat_brdf = specular_component(
+        specular_V_GGX(v, clearcoat_n, l, clearcoat_alpha), specular_D_GGX(
+            clearcoat_n, h, clearcoat_alpha)
+    )
+
+    # clearcoat layering
+    coated_material = fresnel_coat(
+        v,
+        clearcoat_n,
+        default_ior,
+        clearcoat,
+        material,
+        clearcoat_brdf
+    )
+
+    return sp.Piecewise((coated_material, (nv > 0) & (nl > 0)), (0, True))
 
 
 class glTF_brdf(BSDF):
-    def __init__(self, KHR_materials_ior=False, KHR_materials_specular=False):
+    def __init__(self, KHR_materials_ior=False, KHR_materials_specular=False, KHR_materials_clearcoat=False):
 
         self.KHR_materials_ior = KHR_materials_ior
         self.KHR_materials_specular = KHR_materials_specular
+        self.KHR_materials_clearcoat = KHR_materials_clearcoat
 
         self.code_params = [vx, vy, vz, nx, ny, nz, lx, ly, lz]
 
@@ -224,6 +247,13 @@ class glTF_brdf(BSDF):
                 ]
                 if self.KHR_materials_specular else []
             ),
+            *(
+                [
+                    clearcoat_name,
+                    clearcoat_roughness_name
+                ]
+                if self.KHR_materials_clearcoat else []
+            ),
         ]
 
         self.bsdf_params = {
@@ -236,6 +266,8 @@ class glTF_brdf(BSDF):
                 specular_color0_name: sp.Symbol(specular_color0_name, nonnegative=True, real=True),
                 specular_color1_name: sp.Symbol(specular_color1_name, nonnegative=True, real=True),
                 specular_color2_name: sp.Symbol(specular_color2_name, nonnegative=True, real=True),
+                clearcoat_name: sp.Symbol(clearcoat_name, nonnegative=True, real=True),
+                clearcoat_roughness_name: sp.Symbol(clearcoat_roughness_name, nonnegative=True, real=True),
             }[name] for name in bsdf_param_names
         }
 
@@ -259,6 +291,13 @@ class glTF_brdf(BSDF):
                 ]
                 if self.KHR_materials_specular else []
             ),
+            *(
+                [
+                    clearcoat_name,
+                    clearcoat_roughness_name,
+                ]
+                if self.KHR_materials_clearcoat else []
+            ),
         ]
 
         self.defaults = {
@@ -269,6 +308,8 @@ class glTF_brdf(BSDF):
                 ior_name: default_ior,
                 specular_name: 1.0,
                 specular_color_name: np.array([1, 1, 1]),
+                clearcoat_name: 0,
+                clearcoat_roughness_name: 0,
             }[name] for name in self.material_params
         }
 
@@ -280,6 +321,8 @@ class glTF_brdf(BSDF):
                 ior_name: default_ior,
                 specular_name: 0.5,
                 specular_color_name: np.array([0.5, 0.5, 0.5]),
+                clearcoat_name: 0.5,
+                clearcoat_roughness_name: 0.5,
             }[name] for name in self.material_params
         }
 
@@ -291,6 +334,8 @@ class glTF_brdf(BSDF):
                 ior_name: (0, np.finfo(np.float32).max),
                 specular_name: (0, 1),
                 specular_color_name: (0, 1),
+                clearcoat_name: (0, 1),
+                clearcoat_roughness_name: (0, 1),
             }[name] for name in self.material_params
         }
 
@@ -353,26 +398,32 @@ class glTF_brdf(BSDF):
             "name": name,
             "pbrMetallicRoughness": {
                 "baseColorFactor": [
-                    params['base_color'][0],
-                    params['base_color'][1],
-                    params['base_color'][2],
+                    params[base_color_name][0],
+                    params[base_color_name][1],
+                    params[base_color_name][2],
                     1,
                 ],
-                "roughnessFactor": np.sqrt(params['alpha'].item()),
-                "metallicFactor": params['metallic'].item(),
+                "roughnessFactor": np.sqrt(params[roughness_name].item()),
+                "metallicFactor": params[metallic_name].item(),
             },
             "extensions": {
                 **({
                     "KHR_materials_ior": {
-                        "ior": params['ior'].item()
+                        "ior": params[ior_name].item()
                     }
                 } if self.KHR_materials_ior else {}),
                 **({
                     "KHR_materials_specular": {
-                        "specularFactor": params['specular'].item(),
-                        "specularColor": list(params['specular_color'])
+                        "specularFactor": params[specular_name].item(),
+                        "specularColor": list(params[specular_color_name])
                     }
                 } if self.KHR_materials_specular else {}),
+                **({
+                    "KHR_materials_clearcoat": {
+                        "clearcoatFactor": params[clearcoat_name].item(),
+                        "clearcoatRoughnessFactor": np.sqrt(params[clearcoat_roughness_name].item())
+                    }
+                } if self.KHR_materials_clearcoat else {}),
             }
         }
 
@@ -394,6 +445,8 @@ def read_glTF_materials(filename):
             ior = None
             specular = None
             specular_color = None
+            clearcoat = None
+            clearcoat_roughness = None
             if "name" in mat:
                 name = mat["name"]
             if "pbrMetallicRoughness" in mat:
@@ -416,11 +469,17 @@ def read_glTF_materials(filename):
                 if "KHR_materials_specular" in ext:
                     if "specularFactor" in ext["KHR_materials_specular"]:
                         specular = ext["KHR_materials_specular"]["specularFactor"]
+                    if "specularColor" in ext["KHR_materials_specular"]:
                         specular_color = np.array([
                             ext["KHR_materials_specular"]["specularColor"][0],
                             ext["KHR_materials_specular"]["specularColor"][1],
                             ext["KHR_materials_specular"]["specularColor"][2],
                         ])
+                if "KHR_materials_clearcoat" in ext:
+                    if "clearcoatFactor" in ext["KHR_materials_clearcoat"]:
+                        clearcoat = ext["KHR_materials_clearcoat"]["clearcoatFactor"]
+                    if "clearcoatRoughnessFactor" in ext["KHR_materials_clearcoat"]:
+                        clearcoat_roughness = ext["KHR_materials_clearcoat"]["clearcoatRoughnessFactor"] ** 2
 
             ret_dict[name] = {
                 base_color_name: base_color,
@@ -429,6 +488,8 @@ def read_glTF_materials(filename):
                 ior_name: ior,
                 specular_name: specular,
                 specular_color_name: specular_color,
+                clearcoat_name: clearcoat,
+                clearcoat_roughness_name: clearcoat_roughness,
             }
             ret_dict[name] = {
                 k: v for k, v in ret_dict[name].items() if v is not None
