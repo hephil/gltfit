@@ -41,15 +41,15 @@ The fitted material slices ($\phi_d=90°$) are shown side by side here:
 
 Merl Data:
 
-<img src="results/merl_slices.png" width=25% height=25%>
+<img src="results/merl_slices.png" style="width:25%; aspect-ratio: 1 / 1; object-fit: cover;">
 
 glTF fits:
 
-<img src="results/glTF_slices.png" width=25% height=25%>
+<img src="results/glTF_slices.png" style="width:25%; aspect-ratio: 1 / 1; object-fit: cover;">
 
 Absolute difference between model and data:
 
-<img src="results/error_slices.png" width=25% height=25%>
+<img src="results/error_slices.png" style="width:25%; aspect-ratio: 1 / 1; object-fit: cover;">
 
 
 # References:
