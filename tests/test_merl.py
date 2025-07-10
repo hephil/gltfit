@@ -102,25 +102,25 @@ def test_brdf_lookup():
         td.ravel(),
         fd.ravel()
     )
-    ti, fi, to, fo = merl.half_diff_to_std_coords(th, np.zeros_like(th), td, fd)
+    ti, fi, to, fo = merl.half_diff_to_std_coords(
+        th, np.zeros_like(th), td, fd
+    )
 
     merl_data = merl.read_merl_brdf("merl100/brdfs/alum-bronze.binary")
-    num_wavelengths = merl_data.shape[0]
+    num_wavelengths = merl_data.shape[-1]
     measured = merl_data[
+        0::downsample_factor,
+        0::downsample_factor,
+        0::downsample_factor,
         :,
-        0::downsample_factor,
-        0::downsample_factor,
-        0::downsample_factor
     ]
-    measured = measured.reshape(num_wavelengths, -1)
+    measured = measured.reshape(-1, num_wavelengths)
+    below_horizon_mask = np.logical_or(
+        to >= np.pi / 2, ti >= np.pi / 2
+    )[..., np.newaxis]
+    measured = np.where(below_horizon_mask, 0, measured)
 
     measured2 = merl.lookup_brdf_val_vectorized(merl_data, ti, fi, to, fo)
 
     assert measured.shape == measured2.shape
-
-    print(measured2 - measured)
-
     assert np.allclose(measured, measured2)
-
-
-test_brdf_lookup()

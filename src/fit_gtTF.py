@@ -52,10 +52,10 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
     # print(measured.shape, l.shape)
 
     # Load entire dataset
-    downsample_factor = 69
-    num_wavelengths = merl_data.shape[0]
-    measured = merl_data.reshape(num_wavelengths, -1)
-    measured = measured[:, 0::downsample_factor]
+    downsample_factor = 169
+    num_wavelengths = merl_data.shape[-1]
+    measured = merl_data.reshape(-1, num_wavelengths)
+    measured = measured[0::downsample_factor, :]
 
     phi_h_val = 0
     theta_h, _, theta_d, phi_d = merl.generate_dense_half_diffs(phi_h_val)
@@ -79,7 +79,7 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
         theta_h, np.broadcast_to(phi_h_val, theta_h.shape), theta_d, phi_d
     )
 
-    n = np.array([0, 0, 1])
+    n = np.array([[0, 0, 1]])
     v = np.array([[
         np.sin(to) * np.cos(po),
         np.sin(to) * np.sin(po),
@@ -98,7 +98,9 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
     # non-linear theta_h mappnig
     sample_weights *= np.sqrt(np.clip(theta_h, epsilon, None))
     # sample_weights *= np.cos(theta_o) # chance of hitting a surface is cos(V), V viewing direction
+    # sample_weights = np.where((theta_o > (75.0/90.0 * np.pi/2)) & (theta_i > (75.0/90.0 * np.pi/2)), 0, sample_weights)
     sample_weights /= np.average(sample_weights)
+    sample_weights = sample_weights[:,np.newaxis]
 
     # nudging the garbage collector to get rid of these large tmp variables
     theta_h, phi_h, theta_d, phi_d = None, None, None, None
@@ -139,7 +141,7 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
             return loss,
         else:
             y = brdf_np(v, n, l, *params)
-            assert (y.shape == measured.shape)
+            assert (y.shape == measured.shape), f"expected: {measured.shape}, got: {y.shape}"
             # loss = np.mean((y - measured) ** 2)
             # loss = np.mean(np.abs(y - measured))
             loss = np.mean(sample_weights * (y - measured) ** 2)
@@ -167,14 +169,14 @@ def fit_merl_brdf(material, dir="../merl100/brdfs/", KHR_materials_ior=False, KH
     # )
     # print()
 
-    return param_dict
+    return param_dict, result.fun
 
 
 def fit_all_merl_materials(dir, KHR_materials_ior=False, KHR_materials_specular=False, analytic_gradient= False):
 
     import tqdm
     materials = merl.get_merl_material_list(dir)
-    param_dicts = {
+    results_dict = {
         material: fit_merl_brdf(
             material,
             dir,
@@ -189,10 +191,13 @@ def fit_all_merl_materials(dir, KHR_materials_ior=False, KHR_materials_specular=
                      KHR_materials_specular=KHR_materials_specular)
 
     materials_dict = {
-        "materials": [brdf.to_json(material, param_dict) for material, param_dict in param_dicts.items()]
+        "materials": [brdf.to_json(material, param_dict) for material, (param_dict, _) in results_dict.items()]
+    }
+    loss_dict = {
+        material: loss for material, (_, loss) in results_dict.items()
     }
 
-    return json.dumps(materials_dict, indent=4, sort_keys=True)
+    return json.dumps(materials_dict, indent=4, sort_keys=True), loss_dict
 
 
 # print(fit_all_merl_materials("merl100/brdfs/"))

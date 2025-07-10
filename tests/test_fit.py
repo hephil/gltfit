@@ -4,14 +4,23 @@ from bsdf import *
 
 class test_brdf(BSDF):
     def __init__(self):
+
+        self.code_params = [vx, vy, vz, nx, ny, nz, lx, ly, lz]
+        base_color_name = "rho"
+        self.bsdf_params = {
+            base_color_name: sp.Symbol(
+                base_color_name, nonnegative=True, real=True
+            )
+        }
+        self.material_params = self.bsdf_params
+        self.bsdf = None
+
         self.params = [vx, vy, vz, nx, ny, nz, lx, ly, lz]
         self.code_params = [vx, vy, vz, nx, ny, nz, lx, ly, lz]
-        self.material_params = [
-            sp.Symbol("rho", nonnegative=True, real=True),
-        ]
         import sympy.vector as spvec
         self.bsdf = sp.Piecewise(
-            (sp.Symbol("rho") / np.pi, ((spvec.dot(V, N) > 0) & (spvec.dot(N, L) > 0))),
+            (self.bsdf_params[base_color_name] / np.pi,
+             ((spvec.dot(V, N) > 0) & (spvec.dot(N, L) > 0))),
             (0, True),
         )
 
@@ -39,14 +48,14 @@ def test_trivial_fit():
 
     # masking samples below horizon in target data actually not necessary because model_output is masked and gradient is 0 for those samples
     target = np.array([target_albedo / np.pi if L_val[i, 2] > 0 else np.array([0, 0, 0])
-                      for i in range(NUM_SAMPLES)]).swapaxes(0, 1)
+                      for i in range(NUM_SAMPLES)])
     # target = np.array([ target_albedo / np.pi for i in range(NUM_SAMPLES)]).swapaxes(0, 1)
 
     limits = [(0, 1)]
     brdf_np = test_brdf().get_np()
 
     def model(albedo):
-        model_output = brdf_np(V_val, N_val, L_val, albedo)
+        model_output = brdf_np(V_val, N_val, L_val, (albedo,))
         assert (model_output.shape == target.shape)
         loss = np.mean((model_output - target) ** 2)
         return loss
@@ -55,11 +64,8 @@ def test_trivial_fit():
         guess,
         limits,
         model,
-        model_der=None
+        jac=None
     )
 
     assert np.allclose(popt[0], target_albedo)
     assert np.allclose(result.fun, 0)
-
-
-test_trivial_fit()

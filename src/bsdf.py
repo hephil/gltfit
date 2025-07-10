@@ -4,6 +4,28 @@ import sympy as sp
 import numpy as np
 import plotly.offline as pyo
 import plotly.graph_objects as go
+import sympy.vector as spvec
+
+C = spvec.CoordSys3D('C')
+
+lx, ly, lz = sp.symbols('lx ly lz', real=True)
+vx, vy, vz = sp.symbols('vx vy vz', real=True)
+nx, ny, nz = sp.symbols('nx ny nz', real=True)
+hx, hy, hz = sp.symbols('hx hy hz', real=True)
+bcx, bcy, bcz = sp.symbols('bcx bcy bcz', real=True)
+scx, scy, scz = sp.symbols('scx scy scz', real=True)
+
+L_SYM = sp.Symbol("L")
+V_SYM = sp.Symbol("V")
+N_SYM = sp.Symbol("N")
+H_SYM = sp.Symbol("H")
+C_SYM = sp.Symbol("rho")
+M1_SYM = sp.Symbol("M_1")
+
+L = lx*C.i + ly*C.j + lz*C.k
+V = vx*C.i + vy*C.j + vz*C.k
+N = nx*C.i + ny*C.j + nz*C.k
+H = hx*C.i + hy*C.j + hz*C.k
 
 
 def linear_to_srgb(c):
@@ -22,7 +44,7 @@ def atleast_nd(arr, n):
 
 
 def np_dot(w1, w2):
-    val = np.sum(w1 * w2, keepdims=False, axis=-1)
+    val = np.sum(w1 * w2, keepdims=True, axis=-1)
     return val
 
 
@@ -53,7 +75,7 @@ def lambdify_fn(params, sympy_expr):
     # into a list and calls array on them which doesn't work at all mmmhh...
 
     def np_dot(a, b):
-        return np.sum(a * b, axis=0)
+        return np.sum(a * b, axis=-1)
 
     return sp.lambdify(
         params,
@@ -61,7 +83,7 @@ def lambdify_fn(params, sympy_expr):
         modules=[{
             "amin": elementwise_min,
             "amax": elementwise_max,
-            "Dot": np_dot,
+            # "Dot": np_dot,
             'minimum': np.minimum,
         }, "numpy"],
     )
@@ -83,30 +105,25 @@ def homogenize_array(x, N):
 class BSDF:
     params = []
     code_params = []
-    material_params = []
+    bsdf_params = {}
+    material_params = {}
+    defaults = {}
+    first_guess = {}
+    bounds = {}
     bsdf = None
 
-    # again, sympy does not always play nice when handling arrays and constants so this function
-    # gives each bsdf implementation the possibility to blow up each parameter into an array
-    def reparametrize_mat(self, shape, params):
+    def reparametrize_mat(self, params):
         return params
 
-    def get_params(self):
-        return list(self.code_params) + list(self.material_params)
-
-    def get_expression(self):
-        return self.bsdf(*self.params, *self.material_params)
-
-    def get_derivatives(self):
-        return [
-            sp.Derivative(self.bsdf(*self.params, *
-                          self.material_params), p).doit()
-            for p in self.material_params
-        ]
+    def reparametrize_gradients(self, gradients):
+        return gradients
 
     def get_np(self, gradient=False):
-        params = self.get_params()
+        params = list(self.code_params) + list(self.bsdf_params.keys())
         brdf_np = lambdify_fn(params, self.bsdf)
+
+        # import inspect
+        # print(inspect.getsource(brdf_np))
 
         brdf_der = []
         brdf_der_np = []
@@ -114,48 +131,37 @@ class BSDF:
         if gradient == True:
             brdf_der = [
                 sp.Derivative(self.bsdf, p).doit()
-                for p in self.material_params
+                for p in self.bsdf_params
             ]
             brdf_der_np = [
                 lambdify_fn(params, der)
                 for der in brdf_der
             ]
 
-        def fn(v, n, l, *mparams):
+        def fn(v, n, l, *args):
 
             v = np.broadcast_to(v, l.shape)
             n = np.broadcast_to(n, l.shape)
 
-            num_dims = np.max(
-                np.array([len(v.shape), len(n.shape), len(l.shape)])
-            )
-
-            v, n, l = (
-                atleast_nd(v, num_dims),
-                atleast_nd(n, num_dims),
-                atleast_nd(l, num_dims)
-            )
-
-            # mparams = [atleast_nd(mparams, num_dims)]
-            mparams = np.concatenate([np.atleast_1d(mp) for mp in mparams])
-            mparams = np.array([np.atleast_1d(mp) for mp in mparams])
+            args = self.reparametrize_mat(*args)
 
             vals = brdf_np(
-                v[..., 0], v[..., 1], v[..., 2],
-                n[..., 0], n[..., 1], n[..., 2],
-                l[..., 0], l[..., 1], l[..., 2],
-                *mparams
+                v[..., 0:1], v[..., 1:2], v[..., 2:3],
+                n[..., 0:1], n[..., 1:2], n[..., 2:3],
+                l[..., 0:1], l[..., 1:2], l[..., 2:3],
+                *args
             )
 
             if gradient == True:
                 grads = np.array([
                     der_np(
-                        v[..., 0], v[..., 1], v[..., 2],
-                        n[..., 0], n[..., 1], n[..., 2],
-                        l[..., 0], l[..., 1], l[..., 2],
-                        *mparams
+                        v[..., 0:1], v[..., 1:2], v[..., 2:3],
+                        n[..., 0:1], n[..., 1:2], n[..., 2:3],
+                        l[..., 0:1], l[..., 1:2], l[..., 2:3],
+                        *args
                     ) for der_np in brdf_der_np
                 ])
+                grads = self.reparametrize_gradients(grads)
                 ret = (ret, grads)
 
             return vals
@@ -180,8 +186,8 @@ def integrate_spherical_function(fun, num_samples=100000):
 
     # average of all wavelengths (usually RGB)
     vals = np.atleast_2d(vals)
-    # print(f"expected shape: ({3},{num_samples}), actual: {vals.shape}")
-    vals = np.mean(vals, axis=0)
+    # print(f"expected shape: ({num_samples}, {3}), actual: {vals.shape}")
+    vals = np.mean(vals, axis=-1)
 
     if np.any(np.logical_not(np.isfinite(vals))) and np.any(vals < 0):
         print("ERROR in brdf evaluation!")
@@ -239,15 +245,16 @@ def plot_brdf(name, brdf, V_val, normalize=None):
         brdf_vals = brdf_vals / (np.max(brdf_vals) + 0.01)
 
     # print("brdf_vals: ", brdf_vals.shape)
-    brdf_vals = np.swapaxes(brdf_vals, 0, 1).reshape(num1, num2, 3)
+    brdf_vals = brdf_vals.reshape(num1, num2, 3)
     L_val = L_val.reshape(num1, num2, 3)
 
     is_valid = np.all(np.isfinite(brdf_vals)) and np.all(brdf_vals >= 0)
     if not is_valid:
         print("ERROR in brdf evaluation!")
+        brdf_vals = np.where(np.isfinite(brdf_vals), brdf_vals, 0)
 
-    if not is_valid:
-        return
+    # if not is_valid:
+    #     return
 
     min_max_val = 100000
     brdf_lum = np.sum(brdf_vals, axis=-1)

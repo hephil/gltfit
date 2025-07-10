@@ -156,7 +156,7 @@ def phi_diff_index(phi_diff):
     return np.clip(tmp, 0, BRDF_SAMPLING_RES_PHI_D // 2 - 1)
 
 
-def lookup_brdf_val_vectorized(brdf, theta_in, phi_in, theta_out, phi_out):
+def lookup_brdf_val_vectorized(data, theta_in, phi_in, theta_out, phi_out):
     """ Vectorized BRDF lookup for multiple incoming/outgoing directions """
 
     theta_half, phi_half, theta_diff, phi_diff = std_coords_to_half_diff_coords(
@@ -169,15 +169,13 @@ def lookup_brdf_val_vectorized(brdf, theta_in, phi_in, theta_out, phi_out):
     ph_d_idx = phi_diff_index(phi_diff)
 
     # Gather BRDF values and apply scaling
-    red_val = brdf[0, th_h_idx, th_d_idx, ph_d_idx]
-    green_val = brdf[1, th_h_idx, th_d_idx, ph_d_idx]
-    blue_val = brdf[2, th_h_idx, th_d_idx, ph_d_idx]
+    brdf = data[th_h_idx, th_d_idx, ph_d_idx]
 
     below_horizon_mask = np.logical_or(
-        theta_out >= np.pi / 2, theta_in >= np.pi / 2)
-    brdf = np.where(below_horizon_mask, 0, np.stack(
-        [red_val, green_val, blue_val], axis=0))
+        theta_out >= np.pi / 2, theta_in >= np.pi / 2
+    )[..., np.newaxis]
 
+    brdf = np.where(below_horizon_mask, 0, brdf)
     return np.clip(brdf, 0, np.inf)
 
 
@@ -216,8 +214,10 @@ def read_merl_brdf(filename):
             brdf = np.fromfile(f, dtype=np.float64, count=3 * n)
 
             brdf = brdf.reshape((3, dims[0], dims[1], dims[2]))
-            brdf = np.array(
-                [RED_SCALE * brdf[0], GREEN_SCALE * brdf[1], BLUE_SCALE * brdf[2]])
+            brdf = np.stack(
+                [RED_SCALE * brdf[0], GREEN_SCALE * brdf[1], BLUE_SCALE * brdf[2]],
+                axis=-1
+            )
             return np.clip(brdf, 0, np.inf)
     except Exception as e:
         print(f"Error reading BRDF file: {e}")
